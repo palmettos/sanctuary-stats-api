@@ -1,0 +1,27 @@
+{
+  "name": "d2id-ext",
+  "version": "1.0.0",
+  "description": "D2ID Twitch extension",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/palmettos/d2id-ext.git"
+  },
+  "keywords": [
+    "d2id"
+  ],
+  "author": "palmettos",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/palmettos/d2id-ext/issues"
+  },
+  "homepage": "https://github.com/palmettos/d2id-ext#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "mongoose": "^5.3.10"
+  }
+}
