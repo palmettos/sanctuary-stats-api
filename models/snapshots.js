@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
-let snapshotSchema = new mongoose.Schema({
+let snapshotsSchema = new mongoose.Schema({
     broadcaster: {type: String, required: true},
     gold: {type: Number, required: true}
 });
 
-module.exports = mongoose.model('Snapshot', snapshotSchema);
+module.exports = mongoose.model('Snapshot', snapshotsSchema);
