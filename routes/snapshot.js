@@ -3,6 +3,6 @@ const snapshotController = require('../controllers/snapshot');
 
 
 const router = express.Router();
-router.get('/test', snapshotController.test);
+router.get('/', snapshotController.test);
 
 module.exports = router;
