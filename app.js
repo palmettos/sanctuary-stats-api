@@ -7,8 +7,6 @@ const config = require('./config');
 const snapshotsRoute = require('./routes/snapshots');
 
 
-const app = express();
-
 mongoose.connect(`mongodb://${config.db_user}:${config.db_pass}@${config.db_addr}`)
     .then(() => {
         logger.info('Connected to the database.');
@@ -20,10 +18,11 @@ mongoose.connect(`mongodb://${config.db_user}:${config.db_pass}@${config.db_addr
     });
 
 function startServer() {
+    let app = express();
     app.use(bodyParser.json());
     app.use('/snapshots', snapshotsRoute);
     app.all('*', function(req, res) {
-        res.send('You requested something at an invalid endpoint.');
+        res.send(JSON.stringify({'error': 404}));
     });
 
     app.listen(config.port, () => {
