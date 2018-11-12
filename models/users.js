@@ -6,7 +6,7 @@ let userSchema = new mongoose.Schema({
     username: {type: String, required: true},
     hash: {type: String, required: true},
     salt: {type: String, required: true}
-})
+});
 
 userSchema.methods.validatePassword = function(password) {
     argon2.verify(this.hash, password + this.salt)
@@ -21,3 +21,5 @@ userSchema.methods.validatePassword = function(password) {
             logger.info(`Error authenticating user: ${this.username}`);
         })
 }
+
+exports.userSchema = mongoose.model('user', userSchema);

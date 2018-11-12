@@ -2,9 +2,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const logger = require('./logger')
+const logger = require('./logger');
 const config = require('./config');
-const snapshotsRoute = require('./routes/snapshots');
+const snapshotsRouter = require('./routes/snapshots');
+const authRouter = require('./routes/auth');
 
 
 mongoose.connect(`mongodb://${config.db_user}:${config.db_pass}@${config.db_addr}`)
@@ -20,9 +21,10 @@ mongoose.connect(`mongodb://${config.db_user}:${config.db_pass}@${config.db_addr
 function startServer() {
     let app = express();
     app.use(bodyParser.json());
-    app.use('/snapshots', snapshotsRoute);
+    app.use('/snapshots', snapshotsRouter);
+    app.use('/auth', authRouter);
     app.all('*', function(req, res) {
-        res.send(JSON.stringify({'error': 404}));
+        res.send(JSON.stringify({error: 404}));
     });
 
     app.listen(config.port, () => {

@@ -1,5 +1,5 @@
 const winston = require('winston');
-const {format} = require('logform')
+const {format} = require('logform');
 
 winston.configure({
     level: 'info',

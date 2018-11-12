@@ -15,6 +15,6 @@ let equippedItemsSchema = new mongoose.Schema({
     timestamp: {type: Number, required: true},
     equipment: [itemSchema],
     charms: [itemSchema]
-})
+});
 
 exports.equippedItems = mongoose.model('equippedItems', equippedItemsSchema);
