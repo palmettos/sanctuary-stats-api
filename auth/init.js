@@ -4,7 +4,7 @@ const {ExtractJwt} = require('passport-jwt');
 const {userSchema} = require('../models/users');
 const passport = require('passport');
 const argon2 = require('argon2');
-const logger = require ('../logger');
+const logger = require('../logger');
 const config = require('../config');
 
 // Is it needlessly confusing to combine callbacks and Promises like this or am I just a noob?

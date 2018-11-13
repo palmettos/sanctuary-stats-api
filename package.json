@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/palmettos/d2id-ext#readme",
   "dependencies": {
+    "apicache": "^1.2.3",
     "argon2": "^0.19.3",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",

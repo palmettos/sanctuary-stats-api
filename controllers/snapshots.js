@@ -3,15 +3,11 @@ const logger = require('../logger');
 const mongoose = require('mongoose');
 
 
-exports.listCharacters = function(req, res) {
-    res.send(`${req.params.streamer}'s characters will be listed here`);
-}
-
 exports.getEquippedItems = function(req, res) {
     res.send(`This will retrieve the equipped items of ${req.params.streamer}'s character named ${req.params.character}`);
 }
 
-exports.processEquippedItems = function(req, res) {
+exports.updateEquippedItems = function(req, res) {
     logger.debug('In processEquippedItems handler.');
     res.send('Snapshots will be sent here by streamers');
 }
