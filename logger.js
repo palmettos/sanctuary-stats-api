@@ -2,12 +2,16 @@ const winston = require('winston');
 const {format} = require('logform');
 
 winston.configure({
-    level: 'info',
+    levels: winston.config.syslog.levels,
     transports: [
         new winston.transports.Console(),
         new winston.transports.File({
             filename: 'combined.log',
             level: 'info'
+        }),
+        new winston.transports.File({
+            filename: 'debug.log',
+            level: 'debug'
         })
     ],
     format: format.combine(

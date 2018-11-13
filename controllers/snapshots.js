@@ -12,6 +12,6 @@ exports.getEquippedItems = function(req, res) {
 }
 
 exports.processEquippedItems = function(req, res) {
-    logger.info(JSON.stringify(req.body));
+    logger.debug('In processEquippedItems handler.');
     res.send('Snapshots will be sent here by streamers');
 }
