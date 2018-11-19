@@ -1,5 +1,6 @@
 const express = require('express');
 const snapshotsController = require('../controllers/snapshots');
+const {skillLevelsSchema, equippedItemsSchema} = require('../models/snapshots');
 const {Validator, ValidationError} = require('express-json-validator-middleware');
 const passport = require('passport');
 const cache = require('memory-cache');
@@ -78,7 +79,7 @@ router.get(
             next();
         }
     },
-    snapshotsController.getEquippedItems
+    snapshotsController.genericGetHandler(equippedItemsSchema)
 );
 
 router.post(
@@ -90,21 +91,36 @@ router.post(
         req.cache = cache;
         next();
     },
-    snapshotsController.updateEquippedItems
+    snapshotsController.genericUpdateHandler(equippedItemsSchema)
 );
 
 router.get(
     '/skills',
     validator.validate({body: getSnapshotRequestSchema}),
-
-    snapshotsController.getSkillLevels
+    (req, res, next) => {
+        let key = JSON.stringify(Object.assign({url: req.originalUrl.replace(/\/$/, '')}, req.body));
+        let data = cache.get(key);
+        if (data) {
+            res.json(data);
+        } else {
+            req.cache = cache;
+            req.cacheKey = key;
+            next()
+        }
+    },
+    snapshotsController.genericGetHandler(skillLevelsSchema)
 );
 
 router.post(
     '/skills',
     validator.validate({body: postSnapshotRequestSchema}),
-
-    snapshotsController.updateSkillLevels
+    (req, res, next) => {
+        let {characterLevel, payload, ...keyProps} = req.body;
+        req.cacheKey = JSON.stringify(Object.assign({url: req.originalUrl.replace(/\/$/, '')}, keyProps));
+        req.cache = cache;
+        next();
+    },
+    snapshotsController.genericUpdateHandler(skillLevelsSchema)
 );
 
 module.exports = router;
