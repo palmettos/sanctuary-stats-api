@@ -63,64 +63,67 @@ getSnapshotRequestSchema = {
     }
 }
 
+function getGenericCachedResponse(req, res, next) {
+    let key = JSON.stringify(Object.assign({url: req.originalUrl.replace(/\/$/, '')}, req.body));
+    let data = cache.get(key);
+    if (data) {
+        res.json(data);
+    } else {
+        req.cache = cache;
+        req.cacheKey = key;
+        next();
+    }
+}
+
+function forwardCacheToHandler(req, res, next) {
+    let allowed = Object.keys(getSnapshotRequestSchema.properties);
+    let filtered = Object.keys(req.body)
+        .filter(key => allowed.includes(key))
+        .reduce((obj, key) => {
+            obj[key] = req.body[key];
+            return obj;
+        }, {url: req.originalUrl.replace(/\/$/, '')});
+    req.cacheKey = JSON.stringify(filtered);
+    req.cache = cache;
+    next();    
+}
+
 const router = express.Router();
 
 router.get(
     '/items',
     validator.validate({body: getSnapshotRequestSchema}),
-    (req, res, next) => {
-        let key = JSON.stringify(Object.assign({url: req.originalUrl.replace(/\/$/, '')}, req.body));
-        let data = cache.get(key);
-        if (data) {
-            res.json(data);
-        } else {
-            req.cache = cache;
-            req.cacheKey = key;
-            next();
-        }
-    },
+    getGenericCachedResponse,
     snapshotsController.genericGetHandler(equippedItemsSchema)
 );
 
 router.post(
     '/items',
     validator.validate({body: postSnapshotRequestSchema}),
-    (req, res, next) => {
-        let {characterLevel, payload, ...keyProps} = req.body;
-        req.cacheKey = JSON.stringify(Object.assign({url: req.originalUrl.replace(/\/$/, '')}, keyProps));
-        req.cache = cache;
-        next();
-    },
+    forwardCacheToHandler,
     snapshotsController.genericUpdateHandler(equippedItemsSchema)
 );
 
 router.get(
     '/skills',
     validator.validate({body: getSnapshotRequestSchema}),
-    (req, res, next) => {
-        let key = JSON.stringify(Object.assign({url: req.originalUrl.replace(/\/$/, '')}, req.body));
-        let data = cache.get(key);
-        if (data) {
-            res.json(data);
-        } else {
-            req.cache = cache;
-            req.cacheKey = key;
-            next()
-        }
-    },
+    getGenericCachedResponse,
     snapshotsController.genericGetHandler(skillLevelsSchema)
 );
 
 router.post(
     '/skills',
     validator.validate({body: postSnapshotRequestSchema}),
-    (req, res, next) => {
-        let {characterLevel, payload, ...keyProps} = req.body;
-        req.cacheKey = JSON.stringify(Object.assign({url: req.originalUrl.replace(/\/$/, '')}, keyProps));
-        req.cache = cache;
-        next();
-    },
+    forwardCacheToHandler,
     snapshotsController.genericUpdateHandler(skillLevelsSchema)
 );
+
+// router.get(
+//     '/gold',
+//     validator.validate({body: getSnapshotRequestSchema}),
+//     (req, res, next) => {
+
+//     }
+// )
 
 module.exports = router;

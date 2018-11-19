@@ -14,18 +14,20 @@ function genericPostAndClear(schema, conditions, req, res) {
             characterName: req.body.characterName,
             characterClass: req.body.characterClass,
             characterLevel: req.body.characterLevel
-        };
+        }
     }
     schema.findOneAndUpdate(
         conditions,
-        {upsert: true, new: true},
         req.body,
+        {upsert: true, new: true},
         (err, doc) => {
         if (err) {
             logger.error(err);
             req.sendStatus(400);
         } else {
             logger.debug(`cacheKey: ${req.cacheKey}`);
+            logger.debug(`req body: ${JSON.stringify(req.body, null, 2)}`);
+            logger.debug(`Updated doc: ${doc}`);
             if (req.cache.del(req.cacheKey)) {
                 logger.debug(`Deleting cache entries for ${req.cacheKey}`);
             }
@@ -40,13 +42,13 @@ function genericCachedGetRequest(schema, conditions, req, res) {
             channel: req.body.channel,
             characterName: req.body.characterName,
             characterClass: req.body.characterClass
-        };
+        }
     }
     schema.find(conditions, (err, docs) => {
         if (err) {
             logger.error(err);
             res.sendStatus(500);
-        } else if (docs.length >0) {
+        } else if (docs.length > 0) {
             logger.debug(`Request ${JSON.stringify(req.body, null, 2)} returned docs ${docs}`);
             logger.debug(`Caching docs for key: ${req.cacheKey}`);
             req.cache.put(req.cacheKey, docs);
