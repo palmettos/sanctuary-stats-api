@@ -6,7 +6,7 @@ const argon2 = require('argon2');
 
 
 exports.requestKey = function(req, res) {
-    logger.info(`User: ${req.user.username}`)
+    logger.info(`User: ${req.user.username}`);
     let key = crypto.randomBytes(16).toString('hex');
     let salt = crypto.randomBytes(16).toString('hex');
     argon2.hash(key + salt)

@@ -7,7 +7,7 @@ const argon2 = require('argon2');
 const logger = require('../logger');
 const config = require('../config');
 
-// Is it needlessly confusing to combine callbacks and Promises like this or am I just a noob?
+
 passport.use(new BasicStrategy(
     (username, password, done) => {
         logger.debug(`Authenticating user: ${username}`);

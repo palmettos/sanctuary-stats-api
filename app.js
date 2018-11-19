@@ -26,7 +26,7 @@ function startServer() {
     app.use('/snapshots', snapshotsRouter);
     app.use('/auth', authRouter);
     app.all('*', function(req, res) {
-        res.send(JSON.stringify({error: 404}));
+        res.sendStatus(404);
     });
 
     app.listen(config.port, () => {
