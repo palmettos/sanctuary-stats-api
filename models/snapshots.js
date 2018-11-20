@@ -21,6 +21,23 @@ let goldSchema = new mongoose.Schema({
     delta: {type: Number, required: true, default: 0}
 });
 
+let attributeSchema = new mongoose.Schema({
+    strength: {type: Number, required: true},
+    dexterity: {type: Number, required: true},
+    vitality: {type: Number, required: true},
+    energy: {type: Number, required: true},
+
+    fireResist: {type: Number, required: true},
+    coldResist: {type: Number, required: true},
+    lightningResist: {type: Number, required: true},
+    poisonResist: {type: Number, required: true},
+
+    fasterHitRecovery: {type: Number, required: true},
+    fasterRunWalk: {type: Number, required: true},
+    fasterCastRate: {type: Number, required: true},
+    increasedAttackSpeed: {type: Number, required: true}
+})
+
 let equippedItemsSchema = new mongoose.Schema({
     ...characterSchema,
     payload: [itemSchema]
@@ -34,8 +51,14 @@ let skillLevelsSchema = new mongoose.Schema({
 let goldStateSchema = new mongoose.Schema({
     ...characterSchema,
     payload: goldSchema
-})
+});
+
+let attributeStateSchema = new mongoose.Schema({
+    ...characterSchema,
+    payload: attributeSchema
+});
 
 exports.equippedItemsSchema = mongoose.model('equippedItems', equippedItemsSchema);
 exports.skillLevelsSchema = mongoose.model('skillLevels', skillLevelsSchema);
 exports.goldStateSchema = mongoose.model('goldState', goldStateSchema);
+exports.attributeStateSchema = mongoose.model('attributestate', attributeStateSchema);

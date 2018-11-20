@@ -3,7 +3,8 @@ const snapshotsController = require('../controllers/snapshots');
 const {
     skillLevelsSchema,
     equippedItemsSchema,
-    goldStateSchema
+    goldStateSchema,
+    attributeStateSchema
 } = require('../models/snapshots');
 const {Validator, ValidationError} = require('express-json-validator-middleware');
 const passport = require('passport');
@@ -135,6 +136,20 @@ router.post(
     validator.validate({body: postSnapshotRequestSchema}),
     forwardCacheToHandler,
     snapshotsController.goldUpdateHandler
+)
+
+router.get(
+    '/attributes',
+    validator.validate({body: getSnapshotRequestSchema}),
+    getGenericCachedResponse,
+    snapshotsController.genericGetHandler(attributeStateSchema)
+)
+
+router.post(
+    '/attributes',
+    validator.validate({body: postSnapshotRequestSchema}),
+    forwardCacheToHandler,
+    snapshotsController.genericUpdateHandler(attributeStateSchema)
 )
 
 module.exports = router;
