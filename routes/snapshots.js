@@ -1,6 +1,10 @@
 const express = require('express');
 const snapshotsController = require('../controllers/snapshots');
-const {skillLevelsSchema, equippedItemsSchema} = require('../models/snapshots');
+const {
+    skillLevelsSchema,
+    equippedItemsSchema,
+    goldStateSchema
+} = require('../models/snapshots');
 const {Validator, ValidationError} = require('express-json-validator-middleware');
 const passport = require('passport');
 const cache = require('memory-cache');
@@ -67,6 +71,7 @@ function getGenericCachedResponse(req, res, next) {
     let key = JSON.stringify(Object.assign({url: req.originalUrl.replace(/\/$/, '')}, req.body));
     let data = cache.get(key);
     if (data) {
+        logger.debug(`Returning cached data for request: ${JSON.stringify(req.body)}`);
         res.json(data);
     } else {
         req.cache = cache;
@@ -118,12 +123,18 @@ router.post(
     snapshotsController.genericUpdateHandler(skillLevelsSchema)
 );
 
-// router.get(
-//     '/gold',
-//     validator.validate({body: getSnapshotRequestSchema}),
-//     (req, res, next) => {
+router.get(
+    '/gold',
+    validator.validate({body: getSnapshotRequestSchema}),
+    getGenericCachedResponse,
+    snapshotsController.genericGetHandler(goldStateSchema)
+)
 
-//     }
-// )
+router.post(
+    '/gold',
+    validator.validate({body: postSnapshotRequestSchema}),
+    forwardCacheToHandler,
+    snapshotsController.goldUpdateHandler
+)
 
 module.exports = router;

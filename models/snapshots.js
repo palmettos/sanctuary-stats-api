@@ -16,6 +16,11 @@ let itemSchema = new mongoose.Schema({
     properties: [{type: String, required: false}]
 });
 
+let goldSchema = new mongoose.Schema({
+    currentGold: {type: Number, required: true},
+    delta: {type: Number, required: true, default: 0}
+});
+
 let equippedItemsSchema = new mongoose.Schema({
     ...characterSchema,
     payload: [itemSchema]
@@ -26,5 +31,11 @@ let skillLevelsSchema = new mongoose.Schema({
     payload: {type: Object, required: true}
 });
 
+let goldStateSchema = new mongoose.Schema({
+    ...characterSchema,
+    payload: goldSchema
+})
+
 exports.equippedItemsSchema = mongoose.model('equippedItems', equippedItemsSchema);
 exports.skillLevelsSchema = mongoose.model('skillLevels', skillLevelsSchema);
+exports.goldStateSchema = mongoose.model('goldState', goldStateSchema);
