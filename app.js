@@ -20,11 +20,15 @@ mongoose.connect(`mongodb://${config.db_user}:${config.db_pass}@${config.db_addr
 
 function startServer() {
     let app = express();
-    require('./auth/init');
+    let v1 = express.Router();
+    
+    v1.use('/snapshots', snapshotsRouter);
+    v1.use('/auth', authRouter);
+    
     app.use(passport.initialize());
+    require('./auth/init');
     app.use(bodyParser.json());
-    app.use('/snapshots', snapshotsRouter);
-    app.use('/auth', authRouter);
+    app.use('/v1', v1);
     app.all('*', function(req, res) {
         res.sendStatus(404);
     });

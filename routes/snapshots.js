@@ -142,7 +142,7 @@ router.get(
     '/attributes',
     validator.validate({body: getSnapshotRequestSchema}),
     getGenericCachedResponse,
-    snapshotsController.genericGetHandler(attributeStateSchema)
+    snapshotsController.attributeReadHandler
 )
 
 router.post(

@@ -4,11 +4,12 @@ const mongoose = require('mongoose');
 const {
     equippedItemsSchema,
     skillLevelsSchema,
-    goldStateSchema
+    goldStateSchema,
+    attributeStateSchema
 } = require('../models/snapshots');
 
 
-function createUpdateSchemaConditions(req) {
+function createGenericUpdateConditions(req) {
     return {
         channel: req.body.channel,
         characterName: req.body.characterName,
@@ -17,7 +18,7 @@ function createUpdateSchemaConditions(req) {
     };
 }
 
-function createReadSchemaConditions(req) {
+function createGenericReadConditions(req) {
     return {
         channel: req.body.channel,
         characterName: req.body.characterName,
@@ -45,8 +46,7 @@ function clearCacheOnUpdate(req, res) {
 function genericGetAndCache(req, res) {
     return function(err, docs) {
         if (err) {
-            logger.error(err);
-            res.sendStatus(500);
+            loggedErrorResponse(err);
         } else if (docs.length > 0) {
             logger.debug(`Request ${JSON.stringify(req.body, null, 2)} returned docs ${docs}`);
             logger.debug(`Caching docs for key: ${req.cacheKey}`);
@@ -58,9 +58,9 @@ function genericGetAndCache(req, res) {
     }
 }
 
-function genericPostAndClear(schema, conditions, req, res) {
+function genericUpdateAndClear(schema, conditions, req, res) {
     if (!conditions) {
-        conditions = createUpdateSchemaConditions(req);
+        conditions = createGenericUpdateConditions(req);
     }
     schema.findOneAndUpdate(
         conditions,
@@ -70,30 +70,76 @@ function genericPostAndClear(schema, conditions, req, res) {
     );
 }
 
+function loggedErrorResponse(err) {
+    logger.error(err);
+    res.sendStatus(500);
+}
 
-function genericCachedGetRequest(schema, conditions, req, res) {
+function transformAttributeResponse(docs) {
+    let response = {
+        level: [],
+
+        strength: [],
+        dexterity: [],
+        vitality: [],
+        energy: [],
+
+        fireResist: [],
+        coldResist: [],
+        lightningResist: [],
+        poisonResist: [],
+
+        fasterHitRecovery: [],
+        fasterRunWalk: [],
+        fasterCastRate: [],
+        increasedAttackSpeed: []
+    }
+
+    for (let doc of docs) {
+        response.level.push(doc.characterLevel);
+
+        response.strength.push(doc.payload.strength);
+        response.dexterity.push(doc.payload.dexterity);
+        response.vitality.push(doc.payload.vitality);
+        response.energy.push(doc.payload.energy);
+
+        response.fireResist.push(doc.payload.fireResist);
+        response.coldResist.push(doc.payload.coldResist);
+        response.lightningResist.push(doc.payload.lightningResist);
+        response.poisonResist.push(doc.payload.poisonResist);
+
+        response.fasterHitRecovery.push(doc.payload.fasterHitRecovery);
+        response.fasterRunWalk.push(doc.payload.fasterRunWalk);
+        response.fasterCastRate.push(doc.payload.fasterCastRate);
+        response.increasedAttackSpeed.push(doc.payload.increasedAttackSpeed);
+    }
+
+    return response;
+}
+
+function genericCachedRead(schema, conditions, req, res) {
     if (!conditions) {
-        conditions = createReadSchemaConditions(req);
+        conditions = createGenericReadConditions(req);
     }
     schema.find(conditions, genericGetAndCache(req, res));
 }
 
 exports.genericUpdateHandler = function(schema) {
     return function(req, res) {
-        genericPostAndClear(schema, null, req, res);
+        genericUpdateAndClear(schema, null, req, res);
     };
 }
 
 exports.genericGetHandler = function(schema) {
     return function(req, res) {
-        genericCachedGetRequest(schema, null, req, res);
+        genericCachedRead(schema, null, req, res);
     };
 }
 
 exports.goldUpdateHandler = function(req, res, next) {
     logger.info(`goldUpdateHandler request: ${JSON.stringify(req.body)}`);
     goldStateSchema.findOneAndUpdate(
-        createUpdateSchemaConditions(req),
+        createGenericUpdateConditions(req),
         {
             $set: {'payload.currentGold': req.body.payload.currentGold},
             $inc: {'payload.delta': req.body.payload.delta}
@@ -101,4 +147,22 @@ exports.goldUpdateHandler = function(req, res, next) {
         {upsert: true, new: true, setDefaultsOnInsert: true},
         clearCacheOnUpdate(req, res)
     );
+}
+
+exports.attributeReadHandler = function(req, res, next) {
+    logger.info(`attributeReadHandler request: ${JSON.stringify(req.body)}`);
+    attributeStateSchema.find(
+        createGenericReadConditions(req),
+        (err, docs) => {
+            if (err) {
+                loggedErrorResponse(err);
+            } else if (docs.length > 0) {
+                let transformed = transformAttributeResponse(docs);
+                req.cache.put(req.cacheKey, transformed);
+                res.json(transformed);
+            } else {
+                res.sendStatus(400);
+            }
+        }
+    )
 }
