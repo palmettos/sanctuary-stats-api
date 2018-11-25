@@ -180,14 +180,113 @@ exports.attributeStateValidator = checkSchema(
         payload: {
             exists: {
                 errorMessage: 'payload must exist'
-            },
-            isEmpty: {
-                errorMessage: 'payload must contain data'
             }
         },
-        'payload.*': {
+        'payload.strength': {
+            exists: {
+                errorMessage: 'payload.strength must exist'
+            },
             isInt: {
-                errorMessage: 'payload data must be integers between 1 and 1000',
+                errorMessage: 'strength must be an integer between 1 and 1000',
+                options: {min: 0, max: 1000}
+            }
+        },
+        'payload.dexterity': {
+            exists: {
+                errorMessage: 'payload.dexterity must exist'
+            },
+            isInt: {
+                errorMessage: 'dexterity must be an integer between 1 and 1000',
+                options: {min: 0, max: 1000}
+            }
+        },
+        'payload.vitality': {
+            exists: {
+                errorMessage: 'payload.vitality must exist'
+            },
+            isInt: {
+                errorMessage: 'vitality must be an integer between 1 and 1000',
+                options: {min: 0, max: 1000}
+            }
+        },
+        'payload.energy': {
+            exists: {
+                errorMessage: 'payload.energy must exist'
+            },
+            isInt: {
+                errorMessage: 'energy must be an integer between 1 and 1000',
+                options: {min: 0, max: 1000}
+            }
+        },
+        'payload.fireResist': {
+            exists: {
+                errorMessage: 'payload.fireResist must exist'
+            },
+            isInt: {
+                errorMessage: 'fireResist must be an integer between 1 and 100',
+                options: {min: 0, max: 100}
+            }
+        },
+        'payload.coldResist': {
+            exists: {
+                errorMessage: 'payload.coldResist must exist'
+            },
+            isInt: {
+                errorMessage: 'coldResist must be an integer between 1 and 100',
+                options: {min: 0, max: 1000}
+            }
+        },
+        'payload.lightningResist': {
+            exists: {
+                errorMessage: 'payload.lightningResist must exist'
+            },
+            isInt: {
+                errorMessage: 'lightningResist must be an integer between 1 and 100',
+                options: {min: 0, max: 100}
+            }
+        },
+        'payload.poisonResist': {
+            exists: {
+                errorMessage: 'payload.poisonResist must exist'
+            },
+            isInt: {
+                errorMessage: 'poisonResist must be an integer between 1 and 100',
+                options: {min: 0, max: 100}
+            }
+        },
+        'payload.fasterHitRecovery': {
+            exists: {
+                errorMessage: 'payload.fasterHitRecovery must exist'
+            },
+            isInt: {
+                errorMessage: 'fasterHitRecovery must be an integer between 1 and 1000',
+                options: {min: 0, max: 1000}
+            }
+        },
+        'payload.fasterRunWalk': {
+            exists: {
+                errorMessage: 'payload.fasterRunWalk must exist'
+            },
+            isInt: {
+                errorMessage: 'fasterRunWalk must be an integer between 1 and 1000',
+                options: {min: 0, max: 1000}
+            }
+        },
+        'payload.fasterCastRate': {
+            exists: {
+                errorMessage: 'payload.fasterCastRate must exist'
+            },
+            isInt: {
+                errorMessage: 'fasterCastRate must be an integer between 1 and 1000',
+                options: {min: 0, max: 1000}
+            }
+        },
+        'payload.increasedAttackSpeed': {
+            exists: {
+                errorMessage: 'payload.increasedAttackSpeed must exist'
+            },
+            isInt: {
+                errorMessage: 'increasedAttackSpeed must be an integer between 1 and 1000',
                 options: {min: 0, max: 1000}
             }
         }
