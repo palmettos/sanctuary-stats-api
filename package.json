@@ -24,7 +24,7 @@
     "argon2": "^0.19.3",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "express-json-validator-middleware": "^1.2.3",
+    "express-validator": "^5.3.0",
     "ipfilter": "0.0.4",
     "jsonwebtoken": "^8.3.0",
     "logform": "^1.10.0",

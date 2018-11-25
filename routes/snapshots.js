@@ -4,71 +4,25 @@ const {
     skillLevelsSchema,
     equippedItemsSchema,
     goldStateSchema,
-    attributeStateSchema
+    attributeStateSchema,
+    characterIdentifier
 } = require('../models/snapshots');
-const {Validator, ValidationError} = require('express-json-validator-middleware');
 const passport = require('passport');
 const cache = require('memory-cache');
 const logger = require('winston');
+const {ValidationError} = require('mongoose');
+const {
+    characterIdValidator,
+    equippedItemsValidator,
+    skillLevelsValidator,
+    goldStateValidator,
+    attributeStateValidator
+} = require('../models/validators');
+const {validationResult} = require('express-validator/check');
+const {matchedData} = require('express-validator/filter');
 
 
-const validator = new Validator({allErrors: true});
-postSnapshotRequestSchema = {
-    type: 'object',
-    required: ['channel', 'characterName', 'characterClass', 'characterLevel'],
-    properties: {
-        channel: {
-            type: 'string'
-        },
-        characterName: {
-            type: 'string'
-        },
-        characterClass: {
-            type: 'string',
-            enum: [
-                'Amazon',
-                'Assassin',
-                'Barbarian',
-                'Druid',
-                'Necromancer',
-                'Paladin',
-                'Sorceress'
-            ]
-        },
-        characterLevel: {
-            type: 'number',
-            minimum: 1,
-            maximum: 99
-        }
-    }
-}
-
-getSnapshotRequestSchema = {
-    type: 'object',
-    required: ['channel', 'characterName', 'characterClass'],
-    properties: {
-        channel: {
-            type: 'string'
-        },
-        characterName: {
-            type: 'string'
-        },
-        characterClass: {
-            type: 'string',
-            enum: [
-                'Amazon',
-                'Assassin',
-                'Barbarian',
-                'Druid',
-                'Necromancer',
-                'Paladin',
-                'Sorceress'
-            ]
-        }
-    }
-}
-
-function getGenericCachedResponse(req, res, next) {
+function cachedResponseIfAvailable(req, res, next) {
     let key = JSON.stringify(Object.assign({url: req.originalUrl.replace(/\/$/, '')}, req.body));
     let data = cache.get(key);
     if (data) {
@@ -81,8 +35,8 @@ function getGenericCachedResponse(req, res, next) {
     }
 }
 
-function forwardCacheToHandler(req, res, next) {
-    let allowed = Object.keys(getSnapshotRequestSchema.properties);
+function forwardCacheInstance(req, res, next) {
+    let allowed = Object.keys(characterIdentifier);
     let filtered = Object.keys(req.body)
         .filter(key => allowed.includes(key))
         .reduce((obj, key) => {
@@ -94,62 +48,92 @@ function forwardCacheToHandler(req, res, next) {
     next();    
 }
 
+function checkErrors(req, res, next) {
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({errors: errors.array()});
+    }
+    next();
+}
+
+function filterBody(req, res, next) {
+    req.body = matchedData(req);
+    logger.debug(`Filtered body: ${JSON.stringify(req.body)}`);
+    next();
+}
+
 const router = express.Router();
 
 router.get(
     '/items',
-    validator.validate({body: getSnapshotRequestSchema}),
-    getGenericCachedResponse,
-    snapshotsController.genericGetHandler(equippedItemsSchema)
+    characterIdValidator,
+    checkErrors,
+    filterBody,
+    cachedResponseIfAvailable,
+    snapshotsController.itemReadHandler
 );
 
 router.post(
     '/items',
-    validator.validate({body: postSnapshotRequestSchema}),
-    forwardCacheToHandler,
-    snapshotsController.genericUpdateHandler(equippedItemsSchema)
+    equippedItemsValidator,
+    checkErrors,
+    filterBody,
+    forwardCacheInstance,
+    snapshotsController.itemUpdateHandler
 );
 
 router.get(
     '/skills',
-    validator.validate({body: getSnapshotRequestSchema}),
-    getGenericCachedResponse,
-    snapshotsController.genericGetHandler(skillLevelsSchema)
+    characterIdValidator,
+    checkErrors,
+    filterBody,
+    cachedResponseIfAvailable,
+    snapshotsController.skillReadHandler
 );
 
 router.post(
     '/skills',
-    validator.validate({body: postSnapshotRequestSchema}),
-    forwardCacheToHandler,
-    snapshotsController.genericUpdateHandler(skillLevelsSchema)
+    skillLevelsValidator,
+    checkErrors,
+    filterBody,
+    forwardCacheInstance,
+    snapshotsController.skillUpdateHandler
 );
 
 router.get(
     '/gold',
-    validator.validate({body: getSnapshotRequestSchema}),
-    getGenericCachedResponse,
-    snapshotsController.genericGetHandler(goldStateSchema)
+    characterIdValidator,
+    checkErrors,
+    filterBody,
+    cachedResponseIfAvailable,
+    snapshotsController.goldReadHandler
 )
 
 router.post(
     '/gold',
-    validator.validate({body: postSnapshotRequestSchema}),
-    forwardCacheToHandler,
+    goldStateValidator,
+    checkErrors,
+    filterBody,
+    forwardCacheInstance,
     snapshotsController.goldUpdateHandler
 )
 
 router.get(
     '/attributes',
-    validator.validate({body: getSnapshotRequestSchema}),
-    getGenericCachedResponse,
+    characterIdValidator,
+    checkErrors,
+    filterBody,
+    cachedResponseIfAvailable,
     snapshotsController.attributeReadHandler
 )
 
 router.post(
     '/attributes',
-    validator.validate({body: postSnapshotRequestSchema}),
-    forwardCacheToHandler,
-    snapshotsController.genericUpdateHandler(attributeStateSchema)
+    attributeStateValidator,
+    checkErrors,
+    filterBody,
+    forwardCacheInstance,
+    snapshotsController.attributeUpdateHandler
 )
 
 module.exports = router;

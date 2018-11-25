@@ -28,7 +28,7 @@ function startServer() {
     app.use(passport.initialize());
     require('./auth/init');
     app.use(bodyParser.json());
-    app.use('/v1', v1);
+    app.use('/api/v1', v1);
     app.all('*', function(req, res) {
         res.sendStatus(404);
     });

@@ -26,53 +26,9 @@ function createGenericReadConditions(req) {
     };
 }
 
-function clearCacheOnUpdate(req, res) {
-    return function(err, doc) {
-        if (err) {
-            logger.error(err);
-            res.sendStatus(400);
-        } else {
-            logger.debug(`cacheKey: ${req.cacheKey}`);
-            logger.debug(`req body: ${JSON.stringify(req.body, null, 2)}`);
-            logger.debug(`Updated doc: ${doc}`);
-            if (req.cache.del(req.cacheKey)) {
-                logger.debug(`Deleting cache entries for ${req.cacheKey}`);
-            }
-            res.sendStatus(200);
-        }
-    }
-}
-
-function genericGetAndCache(req, res) {
-    return function(err, docs) {
-        if (err) {
-            loggedErrorResponse(err);
-        } else if (docs.length > 0) {
-            logger.debug(`Request ${JSON.stringify(req.body, null, 2)} returned docs ${docs}`);
-            logger.debug(`Caching docs for key: ${req.cacheKey}`);
-            req.cache.put(req.cacheKey, docs);
-            res.json(docs);
-        } else {
-            res.sendStatus(404);
-        }
-    }
-}
-
-function genericUpdateAndClear(schema, conditions, req, res) {
-    if (!conditions) {
-        conditions = createGenericUpdateConditions(req);
-    }
-    schema.findOneAndUpdate(
-        conditions,
-        req.body,
-        {upsert: true, new: true},
-        clearCacheOnUpdate(req, res)
-    );
-}
-
-function loggedErrorResponse(err) {
+function loggedErrorResponse(res, err) {
     logger.error(err);
-    res.sendStatus(500);
+    res.sendStatus(400);
 }
 
 function transformAttributeResponse(docs) {
@@ -117,27 +73,68 @@ function transformAttributeResponse(docs) {
     return response;
 }
 
-function genericCachedRead(schema, conditions, req, res) {
-    if (!conditions) {
-        conditions = createGenericReadConditions(req);
+function transformGoldResponse(docs) {
+    let response = {
+        level: [],
+        currentGold: [],
+        currentGoldDelta: []
     }
-    schema.find(conditions, genericGetAndCache(req, res));
+
+    for (let doc of docs) {
+        response.level.push(doc.characterLevel);
+        response.currentGold.push(doc.payload.currentGold);
+        response.currentGoldDelta.push(doc.payload.delta);
+    }
+
+    return response;
 }
 
-exports.genericUpdateHandler = function(schema) {
-    return function(req, res) {
-        genericUpdateAndClear(schema, null, req, res);
-    };
+function transformSkillResponse(docs) {
+    let response = {
+        level: [],
+        skills: []
+    }
+
+    for (let doc of docs) {
+        response.level.push(doc.characterLevel);
+        let current = {}
+        for (let key of Object.keys(doc.payload)) {
+            current[key] = doc.payload[key];
+        }
+        response.skills.push(current);
+    }
+    
+    return response;
 }
 
-exports.genericGetHandler = function(schema) {
-    return function(req, res) {
-        genericCachedRead(schema, null, req, res);
-    };
+function transformItemResponse(docs) {
+    let response = {
+        level: [],
+        items: []
+    }
+
+    for (let doc of docs) {
+        response.level.push(doc.characterLevel);
+        let current = []
+        for (let item of doc.payload) {
+            current.push(item);
+        }
+        response.items.push(current);
+    }
+
+    return response;
+}
+
+exports.goldReadHandler = function(req, res, next) {
+    logRequest('goldReadHandler', req);
+    goldStateSchema.find(
+        createGenericReadConditions(req),
+        createGenericCachingTransformation(req, res, transformGoldResponse)
+    );
 }
 
 exports.goldUpdateHandler = function(req, res, next) {
-    logger.info(`goldUpdateHandler request: ${JSON.stringify(req.body)}`);
+    logRequest('goldUpdateHandler', req);
     goldStateSchema.findOneAndUpdate(
         createGenericUpdateConditions(req),
         {
@@ -145,24 +142,96 @@ exports.goldUpdateHandler = function(req, res, next) {
             $inc: {'payload.delta': req.body.payload.delta}
         },
         {upsert: true, new: true, setDefaultsOnInsert: true},
-        clearCacheOnUpdate(req, res)
+        createGenericCacheClearingUpdate(req, res)
     );
 }
 
 exports.attributeReadHandler = function(req, res, next) {
-    logger.info(`attributeReadHandler request: ${JSON.stringify(req.body)}`);
+    logRequest('attributeReadHandler', req);
     attributeStateSchema.find(
         createGenericReadConditions(req),
-        (err, docs) => {
-            if (err) {
-                loggedErrorResponse(err);
-            } else if (docs.length > 0) {
-                let transformed = transformAttributeResponse(docs);
-                req.cache.put(req.cacheKey, transformed);
-                res.json(transformed);
-            } else {
-                res.sendStatus(400);
+        createGenericCachingTransformation(req, res, transformAttributeResponse)
+    );
+}
+
+exports.attributeUpdateHandler = function(req, res, next) {
+    logRequest('attributeUpdateHandler', req);
+    attributeStateSchema.findOneAndUpdate(
+        createGenericUpdateConditions(req),
+        req.body,
+        {upsert: true, new: true},
+        createGenericCacheClearingUpdate(req, res)
+    );
+}
+
+exports.skillReadHandler = function(req, res, next) {
+    logRequest('skillReadHandler', req);
+    skillLevelsSchema.find(
+        createGenericReadConditions(req),
+        createGenericCachingTransformation(req, res, transformSkillResponse)
+    );
+}
+
+exports.skillUpdateHandler = function(req, res, next) {
+    logRequest('skillUpdateHandler', req);
+    skillLevelsSchema.findOneAndUpdate(
+        createGenericUpdateConditions(req),
+        req.body,
+        {upsert: true, new: true},
+        createGenericCacheClearingUpdate(req, res)
+    );
+}
+
+exports.itemReadHandler = function(req, res, next) {
+    logRequest('itemReadHandler', req);
+    equippedItemsSchema.find(
+        createGenericReadConditions(req),
+        createGenericCachingTransformation(req, res, transformItemResponse)
+    );
+}
+
+exports.itemUpdateHandler = function(req, res, next) {
+    logRequest('itemUpdateHandler', req);
+    equippedItemsSchema.findOneAndUpdate(
+        createGenericUpdateConditions(req),
+        req.body,
+        {upsert: true, new: true},
+        createGenericCacheClearingUpdate(req, res)
+    );
+}
+
+function logRequest(funcName, req) {
+    logger.debug(`Request received: ${funcName}: ${JSON.stringify(req.body)}`);
+}
+
+function logCacheClear(funcName, req) {
+    logger.debug(`${funcName}: Cache cleared for request: ${JSON.stringify(req.body)}`);
+}
+
+function createGenericCacheClearingUpdate(req, res) {
+    return function(err, doc) {
+        if (err) {
+            loggedErrorResponse(res, err);
+        } else {
+            if (req.cache.del(req.cacheKey)) {
+                logCacheClear('createGenericClearCacheResponse', req);
             }
+            res.sendStatus(200);
         }
-    )
+    }
+}
+
+function createGenericCachingTransformation(req, res, transform) {
+    return (err, docs) => {
+        if (err) {
+            loggedErrorResponse(res, err);
+        } else if (docs.length > 0) {
+            let transformed = transform(docs);
+            logger.debug(`Caching data for request: ${JSON.stringify(req.body)}`);
+            req.cache.put(req.cacheKey, transformed);
+            res.json(transformed);
+        } else {
+            res.sendStatus(404);
+        }
+    }
 }

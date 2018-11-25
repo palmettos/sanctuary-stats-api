@@ -1,60 +1,67 @@
 const mongoose = require('mongoose');
 
 
-let characterSchema = {
-    channel: {type: String, required: true},
-    characterName: {type: String, required: true},
-    characterClass: {type: String, required: true},
-    characterLevel: {type: Number, required: true},
+let characterIdentifier = {
+    channel: {type: String},
+    characterName: {type: String},
+    characterClass: {type: String}
 };
 
+let characterIdSchema = new mongoose.Schema({
+    ...characterIdentifier
+});
+
 let itemSchema = new mongoose.Schema({
-    uniqueName: {type: String, required: true},
-    baseName: {type: String, required: true},
-    quality: {type: String, required: true},
-    location: {type: String, required: true},
-    properties: [{type: String, required: false}]
+    uniqueName: {type: String},
+    baseName: {type: String},
+    quality: {type: String},
+    location: {type: String},
+    properties: [{type: String}]
 });
 
 let goldSchema = new mongoose.Schema({
-    currentGold: {type: Number, required: true},
-    delta: {type: Number, required: true, default: 0}
+    currentGold: {type: Number},
+    delta: {type: Number, default: 0}
 });
 
 let attributeSchema = new mongoose.Schema({
-    strength: {type: Number, required: true},
-    dexterity: {type: Number, required: true},
-    vitality: {type: Number, required: true},
-    energy: {type: Number, required: true},
+    strength: {type: Number},
+    dexterity: {type: Number},
+    vitality: {type: Number},
+    energy: {type: Number},
 
-    fireResist: {type: Number, required: true},
-    coldResist: {type: Number, required: true},
-    lightningResist: {type: Number, required: true},
-    poisonResist: {type: Number, required: true},
+    fireResist: {type: Number},
+    coldResist: {type: Number},
+    lightningResist: {type: Number},
+    poisonResist: {type: Number},
 
-    fasterHitRecovery: {type: Number, required: true},
-    fasterRunWalk: {type: Number, required: true},
-    fasterCastRate: {type: Number, required: true},
-    increasedAttackSpeed: {type: Number, required: true}
-})
+    fasterHitRecovery: {type: Number},
+    fasterRunWalk: {type: Number},
+    fasterCastRate: {type: Number},
+    increasedAttackSpeed: {type: Number}
+});
 
 let equippedItemsSchema = new mongoose.Schema({
-    ...characterSchema,
+    ...characterIdentifier,
+    characterLevel: {type: Number},
     payload: [itemSchema]
 });
 
 let skillLevelsSchema = new mongoose.Schema({
-    ...characterSchema,
-    payload: {type: Object, required: true}
+    ...characterIdentifier,
+    characterLevel: {type: Number},
+    payload: {type: Object}
 });
 
 let goldStateSchema = new mongoose.Schema({
-    ...characterSchema,
+    ...characterIdentifier,
+    characterLevel: {type: Number},
     payload: goldSchema
 });
 
 let attributeStateSchema = new mongoose.Schema({
-    ...characterSchema,
+    ...characterIdentifier,
+    characterLevel: {type: Number},
     payload: attributeSchema
 });
 
@@ -62,3 +69,5 @@ exports.equippedItemsSchema = mongoose.model('equippedItems', equippedItemsSchem
 exports.skillLevelsSchema = mongoose.model('skillLevels', skillLevelsSchema);
 exports.goldStateSchema = mongoose.model('goldState', goldStateSchema);
 exports.attributeStateSchema = mongoose.model('attributestate', attributeStateSchema);
+exports.characterIdSchema = mongoose.model('characterId', characterIdSchema);
+exports.characterIdentifier = characterIdentifier;
