@@ -117,7 +117,15 @@ function transformItemResponse(docs) {
         response.level.push(doc.characterLevel);
         let current = []
         for (let item of doc.payload) {
-            current.push(item);
+            // let {_id, ...rest} = item;
+            let obj = {
+                properties: item.properties,
+                uniqueName: item.uniqueName,
+                baseName: item.baseName,
+                quality: item.quality,
+                location: item.location
+            };
+            current.push(obj);
         }
         response.items.push(current);
     }
