@@ -62,10 +62,20 @@ function filterBody(req, res, next) {
     next();
 }
 
+function filterIdGetParameters(req, res, next) {
+    req.body = {
+        'channel': req.query.channel,
+        'characterName': req.query.characterName,
+        'characterClass': req.query.characterClass
+    };
+    next();
+}
+
 const router = express.Router();
 
 router.get(
     '/items',
+    filterIdGetParameters,
     characterIdValidator,
     checkErrors,
     filterBody,
@@ -84,6 +94,7 @@ router.post(
 
 router.get(
     '/skills',
+    filterIdGetParameters,
     characterIdValidator,
     checkErrors,
     filterBody,
@@ -102,6 +113,7 @@ router.post(
 
 router.get(
     '/gold',
+    filterIdGetParameters,
     characterIdValidator,
     checkErrors,
     filterBody,
@@ -120,6 +132,7 @@ router.post(
 
 router.get(
     '/attributes',
+    filterIdGetParameters,
     characterIdValidator,
     checkErrors,
     filterBody,

@@ -22,6 +22,10 @@ function startServer() {
     let app = express();
     let v1 = express.Router();
     
+    v1.use((req, res, next) => {
+        res.header('Access-Control-Allow-Origin', '*');
+        next();
+    });
     v1.use('/snapshots', snapshotsRouter);
     v1.use('/auth', authRouter);
     

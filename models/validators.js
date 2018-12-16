@@ -12,7 +12,7 @@ let validCharacterClasses = [
     'Druid'
 ];
 
-characterIdValidatorProps = {
+let characterIdValidatorProps = {
     channel: {
         exists: {
             errorMessage: 'channelName must exist'
@@ -53,7 +53,7 @@ characterIdValidatorProps = {
     }
 };
 
-characterLevelValidatorProps = {
+let characterLevelValidatorProps = {
     characterLevel: {
         exists: {
             errorMessage: 'characterLevel must exist'
