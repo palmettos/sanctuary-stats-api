@@ -1,0 +1,45 @@
+graph TD;
+
+    subgraph Routers
+        /snapshots;
+        /auth;
+    end
+
+    subgraph Controllers
+        items;
+        skills;
+        gold;
+        attributes;
+        auth;
+    end
+
+    subgraph DB Collections
+        equippeditems;
+        skilllevels;
+        goldstates;
+        attributestates;
+        users;
+    end
+
+    round(incoming request) --> app;
+    app -- /api/v1 --> /snapshots;
+    app -- /api/v1 --> /auth;
+
+    /snapshots -- /items --> items;
+    /snapshots -- /skills --> skills;
+    /snapshots -- /gold --> gold;
+    /snapshots -- /attributes --> attributes;
+
+    items --> mongoose;
+    skills --> mongoose;
+    gold --> mongoose;
+    attributes --> mongoose;
+    auth --> mongoose;
+
+    mongoose --> equippeditems;
+    mongoose --> skilllevels;
+    mongoose --> goldstates;
+    mongoose --> attributestates;
+    mongoose --> users;
+
+    /auth -- /key --> auth;
