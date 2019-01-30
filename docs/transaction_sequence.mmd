@@ -1,0 +1,40 @@
+sequenceDiagram
+
+participant Diablo II
+participant DiabloInterface
+participant Sanctuary Stats API
+participant Database
+participant Twitch API
+participant Extension Helper
+
+loop at set interval
+  Activate DiabloInterface
+  DiabloInterface ->> Diablo II: read game state
+  Deactivate DiabloInterface
+  Activate Diablo II
+  Diablo II -->> DiabloInterface: state
+  Deactivate Diablo II
+  opt if any state changed
+    loop for each state change
+      Activate DiabloInterface
+      DiabloInterface ->> Sanctuary Stats API: send updated state to EBS
+      Deactivate DiabloInterface
+      Activate Sanctuary Stats API
+      Sanctuary Stats API ->> Sanctuary Stats API: authenticate request
+      Deactivate Sanctuary Stats API
+      alt valid authentication
+        Activate Sanctuary Stats API
+        Sanctuary Stats API ->> Database: add/update record
+        Sanctuary Stats API ->> Twitch API: send PubSub notification
+        Activate Twitch API
+        Deactivate Sanctuary Stats API
+        Twitch API ->> Extension Helper: broadcast notification
+        Deactivate Twitch API
+      else invalid authentication
+        Activate Sanctuary Stats API
+        Sanctuary Stats API -->> DiabloInterface: error
+        Deactivate Sanctuary Stats API
+      end
+    end
+  end
+end

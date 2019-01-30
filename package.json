@@ -29,6 +29,7 @@
     "jsonwebtoken": "^8.3.0",
     "logform": "^1.10.0",
     "memory-cache": "^0.2.0",
+    "mermaid.cli": "^0.5.1",
     "mongoose": "^5.3.10",
     "passport": "^0.4.0",
     "passport-http": "^0.3.0",
