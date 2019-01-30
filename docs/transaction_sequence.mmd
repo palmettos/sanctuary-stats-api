@@ -6,6 +6,7 @@ participant Sanctuary Stats API
 participant Database
 participant Twitch API
 participant Extension Helper
+participant Sanctuary Stats Extension
 
 loop at set interval
   Activate DiabloInterface
@@ -30,6 +31,15 @@ loop at set interval
         Deactivate Sanctuary Stats API
         Twitch API ->> Extension Helper: broadcast notification
         Deactivate Twitch API
+        Activate Extension Helper
+        Extension Helper ->> Sanctuary Stats Extension: notify that new data is available
+        Deactivate Extension Helper
+        Activate Sanctuary Stats Extension
+        Sanctuary Stats Extension ->> Sanctuary Stats API: request updates
+        Deactivate Sanctuary Stats Extension
+        Activate Sanctuary Stats API
+        Sanctuary Stats API -->> Sanctuary Stats Extension: send updates
+        Deactivate Sanctuary Stats API
       else invalid authentication
         Activate Sanctuary Stats API
         Sanctuary Stats API -->> DiabloInterface: error
