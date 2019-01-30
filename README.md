@@ -10,4 +10,6 @@ Previously, I built a Twitch extension called Diablo 2 Item Display. This extens
 
 Overview
 ---
-The sequence of events involved in sending data from the broadcaster's system to the extension front-end is as follows: [transaction]: 
+The sequence of events involved in sending data from the broadcaster's system to the extension front-end is as follows:
+
+![Sequence diagram of a data transaction](https://raw.githubusercontent.com/palmettos/sanctuary-stats-api/master/docs/sequence.png)
