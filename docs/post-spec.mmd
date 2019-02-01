@@ -1,0 +1,14 @@
+graph TD;
+
+request((POST request));
+request --> router;
+router-- validates request --> validators;
+validators -- success --> controller;
+validators -- failure --> error;
+controller -- authenticates request --> auth;
+auth -- success --> db((mongoose query));
+auth -- failure --> error((error response));
+db -- success --> pubsub((PubSub update));
+db -- success --> success((success response));
+db -- failure --> error;
+pubsub -- failure --> pubsub;
