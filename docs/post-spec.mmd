@@ -2,11 +2,11 @@ graph TD;
 
 request((POST request));
 request -- activates --> router;
-router-- forwards to --> validators;
-validators -- success --> auth;
-validators -- failure --> error;
-auth -- success --> controller;
+router-- forwards to --> auth;
+auth -- success --> validators;
 auth -- failure --> error((error response));
+validators -- success --> controller;
+validators -- failure --> error;
 controller -- creates --> db((mongoose query));
 db -- success --> pubsub((PubSub update));
 db -- success --> success((success response));
