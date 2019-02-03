@@ -105,6 +105,7 @@ router.get(
 
 router.post(
     '/skills',
+    passport.authenticate('basic'),
     skillLevelsValidator,
     checkErrors,
     filterBody,
@@ -124,6 +125,7 @@ router.get(
 
 router.post(
     '/gold',
+    passport.authenticate('basic'),
     goldStateValidator,
     checkErrors,
     filterBody,
@@ -143,6 +145,7 @@ router.get(
 
 router.post(
     '/attributes',
+    passport.authenticate('basic'),
     attributeStateValidator,
     checkErrors,
     filterBody,
