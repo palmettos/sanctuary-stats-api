@@ -1,7 +1,7 @@
-<div style="text-align: center;">
-    <h1>Sanctuary Stats API</h1>
-    <img src="https://raw.githubusercontent.com/palmettos/sanctuary-stats-api/master/docs/logo.png"></img>
-</div>
+<h3 align="center">
+    <img src="https://raw.githubusercontent.com/palmettos/sanctuary-stats-api/master/docs/logo.png" />
+</h3>
+<h1 align="center">Sanctuary Stats API</h1>
 
 Motivation
 ---
