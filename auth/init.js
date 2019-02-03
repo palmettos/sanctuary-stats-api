@@ -13,8 +13,14 @@ passport.use(new BasicStrategy(
         logger.debug(`Authenticating user: ${username}`);
         userSchema.findOne({username: username}, (err, user) => {
             logger.debug(`Looking up ${username} in the database.`);
-            if (err) {return done(err);}
-            if (!user) {return done(null, false);}
+            if (err) {
+                logger.debug(err);
+                return done(err);
+            }
+            if (!user) {
+                logger.debug('No user found.');
+                return done(null, false);
+            }
             
             logger.debug(`Verifying password for ${user.username}.`);
             argon2.verify(user.hash, password + user.salt)

@@ -1,7 +1,8 @@
 <h3 align="center">
     <img src="https://raw.githubusercontent.com/palmettos/sanctuary-stats-api/master/docs/logo.png" />
 </h3>
-<h1 align="center">Sanctuary Stats</h1>
+<h1 align="center">Sanctuary Stats
+<p style="font-size:12px;">A stat tracker for Diablo II: Lord of Destruction speedruns</h1>
 
 Motivation
 ---

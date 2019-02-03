@@ -117,7 +117,6 @@ function transformItemResponse(docs) {
         response.level.push(doc.characterLevel);
         let current = []
         for (let item of doc.payload) {
-            // let {_id, ...rest} = item;
             let obj = {
                 properties: item.properties,
                 uniqueName: item.uniqueName,
@@ -224,6 +223,7 @@ function createGenericCacheClearingUpdate(req, res) {
             if (req.cache.del(req.cacheKey)) {
                 logCacheClear('createGenericClearCacheResponse', req);
             }
+            // send notification over pubsub asynchronously
             res.sendStatus(200);
         }
     }
