@@ -1,5 +1,7 @@
-Sanctuary Stats API
-===
+<div style="text-align: center;">
+    <h1>Sanctuary Stats API</h1>
+    <img src="https://raw.githubusercontent.com/palmettos/sanctuary-stats-api/master/docs/sequence.png"></img>
+</div>
 
 Motivation
 ---

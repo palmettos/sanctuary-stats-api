@@ -85,6 +85,7 @@ router.get(
 
 router.post(
     '/items',
+    passport.authenticate('basic'),
     equippedItemsValidator,
     checkErrors,
     filterBody,
