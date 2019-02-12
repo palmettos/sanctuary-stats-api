@@ -7,6 +7,9 @@ const {
     goldStateSchema,
     attributeStateSchema
 } = require('../models/snapshots');
+const jwt = require('jsonwebtoken');
+const config = require('../config');
+const fetch = require('node-fetch');
 
 
 function createGenericUpdateConditions(req) {
@@ -216,7 +219,7 @@ function logCacheClear(funcName, req) {
 }
 
 function createGenericCacheClearingUpdate(req, res) {
-    return function(err, doc) {
+    return async function(err, doc) {
         if (err) {
             loggedErrorResponse(res, err);
         } else {
@@ -224,6 +227,51 @@ function createGenericCacheClearingUpdate(req, res) {
                 logCacheClear('createGenericClearCacheResponse', req);
             }
             // send notification over pubsub asynchronously
+
+            // Repurpose this such that the rig_id is actually a channel id
+            // resolved from the incoming broadcaster's requests so we can
+            // push the update to the appropriate twitch channel;
+            // Also, the message sent should contain at which endpoint new data
+            // is available for the frontend to retrieve from
+            let rig_id = config.rig_id;
+            let payload = {
+                exp: Date.now() + 10000,
+                user_id: rig_id,
+                role: 'external',
+                channel_id: rig_id,
+                pubsub_perms: {
+                    send: [
+                        'broadcast'
+                    ]
+                }
+            }
+            console.log(JSON.stringify(payload));
+            let token = jwt.sign(payload, new Buffer(config.secret, 'base64'));
+            let api_response = await fetch(
+                'https://api.twitch.tv/extensions/message/' + rig_id,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Client-Id': config.client_id,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(
+                        {
+                            content_type: 'application/json',
+                            message: JSON.stringify(
+                                {
+                                    foo: 'bar'
+                                }
+                            ),
+                            targets: ['broadcast']
+                        }
+                    )
+                }
+            );
+            let text = await api_response.text();
+            console.log(text + '\n\n');
+
             res.sendStatus(200);
         }
     }

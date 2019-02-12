@@ -1,8 +1,10 @@
 const {userSchema} = require('../models/users');
+const jwt = require('jsonwebtoken');
 const logger = require('../logger');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const argon2 = require('argon2');
+const config = require('../config');
 
 
 exports.requestKey = function(req, res) {
@@ -28,4 +30,10 @@ exports.requestKey = function(req, res) {
             logger.error('Error generating hash');
         });
     res.send(JSON.stringify({'key': key}));
+}
+
+// To get a JWT for debugging. Remove this in production...
+exports.generateJwt = function(req, res, next) {
+    let token = jwt.sign({test: 'test'}, config.secret);
+    res.send(token);
 }

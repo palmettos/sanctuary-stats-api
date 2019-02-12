@@ -31,6 +31,7 @@
     "memory-cache": "^0.2.0",
     "mermaid.cli": "^0.5.1",
     "mongoose": "^5.3.10",
+    "node-fetch": "^2.3.0",
     "passport": "^0.4.0",
     "passport-http": "^0.3.0",
     "passport-jwt": "^4.0.0",
